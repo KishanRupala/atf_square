@@ -27,7 +27,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
 
   int? parentExpandedIndex;
   int? childExpandedIndex;
-  String? topPaddingZeroItemIndex;
 
   List<AllDayMenu> listAllDayMenu = [];
   List<MorningMenu> listMorningMenu = [];
@@ -46,8 +45,9 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   Map<String,String> selectedVariation = {};
   Map<String,String> selectedPreference = {};
   Map<String, List<String>> selectedMultipleAddOns = {};
-  Map<String, bool> onClickPlusButton = {};
-  Map<String, bool> onClickMinusButton = {};
+  Map<String, num> mapPrice = {};
+  // Map<String, bool> onClickPlusButton = {};
+  // Map<String, bool> onClickMinusButton = {};
 
   bool showMenu = false;
   late AnimationController _controller;
@@ -545,15 +545,17 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   Widget _commonMenuBannerItemWidget(Products productsItem,int index) {
 
     final String productId = productsItem.productId.toString();
-     num totalItemPrice = productsItem.price ?? 0;
+              // num totalItemPrice = productsItem.price ?? 0;
     return Container(
-        margin: EdgeInsets.only(left: 8,right: 8,bottom: 4),
+        margin: EdgeInsets.only(left: 8,right: 8,bottom: 8,top: 8),
         child: StatefulBuilder(
             builder: (BuildContext context,
                 StateSetter itemSetState) {
+             //
+             // bool isOnClickMinusButton = onClickMinusButton[productId] ?? false;
+             // bool isOnClickPlusButton = onClickPlusButton[productId] ?? false;
+                    num selectedPrice = mapPrice[productId] ?? productsItem.price ?? 0;
 
-             bool isOnClickMinusButton = onClickMinusButton[productId] ?? false;
-             bool isOnClickPlusButton = onClickPlusButton[productId] ?? false;
               final String addonsSelectedMultipleAddOnsString = selectedMultipleAddOns[productId]?.join(", ") ?? "";
 
               String selectedVariationName = selectedVariation[productId] ?? "Regular";
@@ -561,427 +563,406 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
 
               int? cartItemIndex = getCartItemIndex(productsItem.productId ?? "", selectedPref, selectedVariationName, addonsSelectedMultipleAddOnsString);
 
-              return  GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: (){
-                  setState((){
-                  topPaddingZeroItemIndex = productId;
-                  });
-                },
-                child: AnimatedPadding(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  padding: EdgeInsets.only(
-                    top: topPaddingZeroItemIndex == productId ? 0 : 12.0,
-                    bottom: topPaddingZeroItemIndex == productId ? 16 : 4.0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 160,
-                        width: double.infinity,
-                        child: ClipRRect(
-                          borderRadius: BorderRadiusGeometry.circular(kBorderRadius),
-                          child: CachedNetworkImage(
-                            imageUrl: "${productsItem.productImage ?? ""}&h=500&zc=2",
+              return  Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 160,
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(kBorderRadius),
+                      child: CachedNetworkImage(
+                        imageUrl: "${productsItem.productImage ?? ""}&h=500&zc=2",
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            Image.asset("assets/images/product_paceholder_img.png", fit: BoxFit.cover),
+                        errorWidget: (context, url, error) {
+                          return Image.asset(
+                              "assets/images/product_paceholder_img.png",
                             fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                Image.asset("assets/images/product_paceholder_img.png", fit: BoxFit.cover),
-                            errorWidget: (context, url, error) {
-                              return Image.asset(
-                                  "assets/images/product_paceholder_img.png",
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                            productsItem.productName ?? "",
+                          style: getMediumTextStyle(fontSize: 16),
                         ),
                       ),
-                      const Gap(8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Text(
-                                productsItem.productName ?? "",
-                              style: getMediumTextStyle(fontSize: 16),
+                      Visibility(
+                          visible: productsItem.swaminarayanAvailable == 1,
+                          child: Container(
+                            margin: EdgeInsets.only(left: 8),
+                            child: Image.asset(
+                              "assets/images/ic_swami_narayan.png",
+                              height: 20,
                             ),
-                          ),
-                          Visibility(
-                              visible: productsItem.swaminarayanAvailable == 1,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 8),
-                                child: Image.asset(
-                                  "assets/images/ic_swami_narayan.png",
-                                  height: 20,
-                                ),
-                              )
-                          ),
-                          Visibility(
-                              visible: productsItem.jainAvailable == 1,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 8),
-                                child: Image.asset(
-                                    "assets/images/ic_jain.png",
-                                  height: 20,
-                                ),
-                              ) ),
-                          Visibility(
-                              visible: productsItem.preOrder == 1,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 8),
-                                child: Image.asset(
-                                    "assets/images/pre_order_img.png",
-                                  height: 14,
-                                ),
-                              )
                           )
-                        ],
                       ),
                       Visibility(
-                        visible: productsItem.description != "",
-                        child: Container(margin: EdgeInsets.only(top: 8),child: Text(productsItem.description ?? "",style: getRegularTextStyle(color: gray,fontSize: 14),))),
-                      Spacer(),
-
-                      ///extras:
-                      Visibility(
-                        visible: productsItem.multipleAddons?.isNotEmpty ?? false,
-                        child: Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child: ForSideDashedBorderBox(
-                            backgroundColor: Color(0xfffafafa),
-                            padding: EdgeInsets.only(top: 10,right: 10,left: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Extras:",style: getRegularTextStyle(color: Color(0xff8c8686),fontSize: 12)),
-                                const Gap(8),
-                                 ...List.generate(productsItem.multipleAddons?.length ?? 0,(index) {
-                                       final multiple = productsItem.multipleAddons![index];
-                                       final multiAddonName = multiple.multipleAddonName ?? "";
-                                       final isSelected =
-                                        selectedMultipleAddOns[productId]?.contains(multiAddonName) ?? false;
-
-                                      return GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () {
-
-                                        itemSetState(() {
-                                            if (!selectedMultipleAddOns.containsKey(productId)) {
-                                              selectedMultipleAddOns[productId] = [];
-                                            }
-
-                                            if (selectedMultipleAddOns[productId]!.contains(multiAddonName)) {
-                                              selectedMultipleAddOns[productId]!.remove(multiAddonName);
-                                              totalItemPrice -= multiple.multipleAddonPrice ?? 0;
-                                            } else {
-                                              selectedMultipleAddOns[productId]!.add(multiAddonName);
-                                              totalItemPrice += multiple.multipleAddonPrice ?? 0;
-                                            }
-                                            print("selectedMultipleAddOns  $selectedMultipleAddOns");
-                                          });
-                                        },
-                                        child: Container(
-                                          margin: const EdgeInsets.only(bottom: 8),
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Image.asset(
-                                                isSelected
-                                                    ? "assets/images/ic_selected_checkbox.png"
-                                                    : "assets/images/ic_checkbox.png",
-                                                color:isSelected ? brandColor : gray,
-                                                height: 16,
-                                                width: 16,
-                                              ),
-                                              const Gap(8),
-                                              Expanded(
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: "${multiple.multipleAddonName ?? ""} ",
-                                                        style: getRegularTextStyle(
-                                                          fontSize: 12,
-                                                          color: isSelected ? black : darkGray,
-                                                        ),
-                                                      ),
-                                                      TextSpan(
-                                                        text: "+ ₹${multiple.multipleAddonPrice ?? 0}",
-                                                        style: getRegularTextStyle(
-                                                          fontSize: 12,
-                                                          color:darkGray,
-                                                        )
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                              ],
+                          visible: productsItem.jainAvailable == 1,
+                          child: Container(
+                            margin: EdgeInsets.only(left: 8),
+                            child: Image.asset(
+                                "assets/images/ic_jain.png",
+                              height: 20,
                             ),
-                          ),
-                        ),
-                      ),
-                      ///jain
-
+                          ) ),
                       Visibility(
-                        visible: productsItem.jainAvailable == 1 || productsItem.swaminarayanAvailable == 1,
-                        child: Container(margin: EdgeInsets.only(top: 8,bottom: 4),child: Text("Preference:",style: getRegularTextStyle(color: gray,fontSize: 12)))),
-
-                      Visibility(
-                        visible: productsItem.jainAvailable == 1 || productsItem.swaminarayanAvailable == 1,
-                        child: Wrap(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                itemSetState(() {
-                                  selectedPreference[productId] = "Regular";
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
-                                margin: EdgeInsets.only(right: 8,bottom: 8),
-
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadiusGeometry.circular(25),
-                                    border: Border.all(color:selectedPref == "Regular" ? black : gray,width: 1),
-                                    color:   selectedPref == "Regular" ? black : Colors.transparent
-                                ),
-                                child: Text(
-                                    "Regular",
-                                  style: getRegularTextStyle(fontSize: 12,color:  selectedPref == "Regular" ? white : black),
-                                ),
-                              ),
+                          visible: productsItem.preOrder == 1,
+                          child: Container(
+                            margin: EdgeInsets.only(left: 8),
+                            child: Image.asset(
+                                "assets/images/pre_order_img.png",
+                              height: 14,
                             ),
-                            Visibility(
-                              visible: productsItem.jainAvailable == 1,
-                              child: GestureDetector(
-                                onTap: () {
-                                  itemSetState(() {
-                                    selectedPreference[productId] = "Jain";
-                                  });
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
-                                  margin: EdgeInsets.only(right: 8,bottom: 8),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadiusGeometry.circular(25),
-                                      border:  Border.all(color: selectedPref == "Jain" ? black : gray,width: 1),
-                                      color:   selectedPref == "Jain" ? black : Colors.transparent
-                                  ),
-                                  child: Text(
-                                      "Jain",
-                                    style: getRegularTextStyle(fontSize: 12,color:   selectedPref == "Jain" ? white : black ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Visibility(
-                              visible: productsItem.swaminarayanAvailable == 1,
-                              child: GestureDetector(
-                                onTap: () {
-                                  print("cklick");
-                                  itemSetState(() {
-                                    selectedPreference[productId] = "Swaminarayan";
-                                  });
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
-                                  margin: EdgeInsets.only(right: 8,bottom: 8),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadiusGeometry.circular(25),
-                                      border: Border.all(color:selectedPref == "Swaminarayan"? black : gray,width: 1),
-                                      color:   selectedPref == "Swaminarayan" ? black : Colors.transparent
-                                  ),
-                                  child: Text(
-                                    "Swaminarayan",
-                                    style: getRegularTextStyle(fontSize: 12,color: selectedPref == "Swaminarayan" ? white : black ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        )
-                      ),
+                          )
+                      )
+                    ],
+                  ),
+                  Visibility(
+                    visible: productsItem.description != "",
+                    child: Container(margin: EdgeInsets.only(top: 8),child: Text(productsItem.description ?? "",style: getRegularTextStyle(color: gray,fontSize: 14),))),
+                  Spacer(),
 
-                      Visibility(
-                        visible: productsItem.productVariations?.isNotEmpty ?? false,
-                        child: Container(margin:EdgeInsets.only(top: 8,bottom: 6),
-                          child: Text("Add-ons:",style: getRegularTextStyle(color: gray,fontSize: 12)))),
-
-                      Visibility(
-                        visible: productsItem.productVariations?.isNotEmpty ?? false,
+                  ///extras:
+                  Visibility(
+                    visible: productsItem.multipleAddons?.isNotEmpty ?? false,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 8),
+                      child: ForSideDashedBorderBox(
+                        backgroundColor: Color(0xfffafafa),
+                        padding: EdgeInsets.only(top: 10,right: 10,left: 10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                itemSetState(() {
-                                  selectedVariation[productId] = "Regular";
-                                  totalItemPrice = productsItem.price ?? 0;
-                                });
-                              },
+                            Text("Extras:",style: getRegularTextStyle(color: Color(0xff8c8686),fontSize: 12)),
+                            const Gap(8),
+                             ...List.generate(productsItem.multipleAddons?.length ?? 0,(index) {
+                                   final multiple = productsItem.multipleAddons![index];
+                                   final multiAddonName = multiple.multipleAddonName ?? "";
+                                   final isSelected =
+                                    selectedMultipleAddOns[productId]?.contains(multiAddonName) ?? false;
+
+                                  return GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+
+                                    itemSetState(() {
+                                        if (!selectedMultipleAddOns.containsKey(productId)) {
+                                          selectedMultipleAddOns[productId] = [];
+                                        }
+
+                                        if (selectedMultipleAddOns[productId]!.contains(multiAddonName)) {
+                                          selectedMultipleAddOns[productId]!.remove(multiAddonName);
+                                          mapPrice[productId] = selectedPrice - ( multiple.multipleAddonPrice ?? 0);
+                                        } else {
+                                          selectedMultipleAddOns[productId]!.add(multiAddonName);
+                                          mapPrice[productId] =selectedPrice + (multiple.multipleAddonPrice ?? 0);
+                                        }
+                                        print("selectedMultipleAddOns  $selectedMultipleAddOns");
+                                      });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Image.asset(
+                                            isSelected
+                                                ? "assets/images/ic_selected_checkbox.png"
+                                                : "assets/images/ic_checkbox.png",
+                                            color:isSelected ? brandColor : gray,
+                                            height: 16,
+                                            width: 16,
+                                          ),
+                                          const Gap(8),
+                                          Expanded(
+                                            child: RichText(
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text: "${multiple.multipleAddonName ?? ""} ",
+                                                    style: getRegularTextStyle(
+                                                      fontSize: 12,
+                                                      color: isSelected ? black : darkGray,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: "+ ₹${multiple.multipleAddonPrice ?? 0}",
+                                                    style: getRegularTextStyle(
+                                                      fontSize: 12,
+                                                      color:darkGray,
+                                                    )
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  ///jain
+
+                  Visibility(
+                    visible: productsItem.jainAvailable == 1 || productsItem.swaminarayanAvailable == 1,
+                    child: Container(margin: EdgeInsets.only(top: 8,bottom: 4),child: Text("Preference:",style: getRegularTextStyle(color: gray,fontSize: 12)))),
+
+                  Visibility(
+                    visible: productsItem.jainAvailable == 1 || productsItem.swaminarayanAvailable == 1,
+                    child: Wrap(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            itemSetState(() {
+                              selectedPreference[productId] = "Regular";
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
+                            margin: EdgeInsets.only(right: 8,bottom: 8),
+
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadiusGeometry.circular(25),
+                                border: Border.all(color:selectedPref == "Regular" ? black : gray,width: 1),
+                                color:   selectedPref == "Regular" ? black : Colors.transparent
+                            ),
+                            child: Text(
+                                "Regular",
+                              style: getRegularTextStyle(fontSize: 12,color:  selectedPref == "Regular" ? white : black),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: productsItem.jainAvailable == 1,
+                          child: GestureDetector(
+                            onTap: () {
+                              itemSetState(() {
+                                selectedPreference[productId] = "Jain";
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
+                              margin: EdgeInsets.only(right: 8,bottom: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadiusGeometry.circular(25),
+                                  border:  Border.all(color: selectedPref == "Jain" ? black : gray,width: 1),
+                                  color:   selectedPref == "Jain" ? black : Colors.transparent
+                              ),
+                              child: Text(
+                                  "Jain",
+                                style: getRegularTextStyle(fontSize: 12,color:   selectedPref == "Jain" ? white : black ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: productsItem.swaminarayanAvailable == 1,
+                          child: GestureDetector(
+                            onTap: () {
+                              print("cklick");
+                              itemSetState(() {
+                                selectedPreference[productId] = "Swaminarayan";
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8,right: 8,top: 4,bottom: 6),
+                              margin: EdgeInsets.only(right: 8,bottom: 8),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadiusGeometry.circular(25),
+                                  border: Border.all(color:selectedPref == "Swaminarayan"? black : gray,width: 1),
+                                  color:   selectedPref == "Swaminarayan" ? black : Colors.transparent
+                              ),
+                              child: Text(
+                                "Swaminarayan",
+                                style: getRegularTextStyle(fontSize: 12,color: selectedPref == "Swaminarayan" ? white : black ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ),
+
+                  Visibility(
+                    visible: productsItem.productVariations?.isNotEmpty ?? false,
+                    child: Container(margin:EdgeInsets.only(top: 8,bottom: 6),
+                      child: Text("Add-ons:",style: getRegularTextStyle(color: gray,fontSize: 12)))),
+
+                  Visibility(
+                    visible: productsItem.productVariations?.isNotEmpty ?? false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            itemSetState(() {
+                              selectedVariation[productId] = "Regular";
+                              mapPrice[productId] = productsItem.price ?? 0;
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                selectedVariationName == "Regular"
+                                    ? "assets/images/ic_radio.png"
+                                    : "assets/images/ic_unSelected_radio.png",
+                                color:   selectedVariationName == "Regular" ? null : gray,
+                                height: 16,
+                                width: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                  "Regular",
+                                style: getRegularTextStyle(
+                                  fontSize: 12,
+                                  color:  darkGray ,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        for (var variation in productsItem.productVariations!)
+                          GestureDetector(
+                            onTap: () {
+                              itemSetState(() {
+                                selectedVariation[productId] = variation.variationName!;
+                                mapPrice[productId] = variation.price ?? 0;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 4),
                               child: Row(
                                 children: [
                                   Image.asset(
-                                    selectedVariationName == "Regular"
+                                    selectedVariationName == variation.variationName
                                         ? "assets/images/ic_radio.png"
                                         : "assets/images/ic_unSelected_radio.png",
-                                    color:   selectedVariationName == "Regular" ? null : gray,
+                                    color:  selectedVariationName == variation.variationName ? null : gray,
                                     height: 16,
                                     width: 16,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                      "Regular",
-                                    style: getRegularTextStyle(
-                                      fontSize: 12,
-                                      color:  darkGray ,
+                                  Flexible(
+                                    child: Text(
+                                        "${variation.variationName ?? ""} + ₹${(variation.price ?? 0) - (productsItem.price ?? 0)}",
+                                      style: getRegularTextStyle(fontSize: 12,color: darkGray, ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            for (var variation in productsItem.productVariations!)
-                              GestureDetector(
-                                onTap: () {
-                                  itemSetState(() {
-                                    selectedVariation[productId] = variation.variationName!;
-                                    totalItemPrice = variation.price ?? 0;
-                                  });
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.only(top: 4),
-                                  child: Row(
-                                    children: [
-                                      Image.asset(
-                                        selectedVariationName == variation.variationName
-                                            ? "assets/images/ic_radio.png"
-                                            : "assets/images/ic_unSelected_radio.png",
-                                        color:  selectedVariationName == variation.variationName ? null : gray,
-                                        height: 16,
-                                        width: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                            "${variation.variationName ?? ""} + ₹${(variation.price ?? 0) - (productsItem.price ?? 0)}",
-                                          style: getRegularTextStyle(fontSize: 12,color: darkGray, ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      Visibility(
-                        visible: productsItem.atfSpecial == 1,
-                        child: Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child: Image.asset(
-                              "assets/images/atf_special.png",
-                            height: 30,
                           ),
-                        )
+                      ],
+                    ),
+                  ),
+
+                  Visibility(
+                    visible: productsItem.atfSpecial == 1,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 8),
+                      child: Image.asset(
+                          "assets/images/atf_special.png",
+                        height: 30,
                       ),
+                    )
+                  ),
 
-                      if(productsItem.price == "" || productsItem.price == null)
-                        Container(margin: EdgeInsets.only(top: 8,bottom: 8),child: Text("Coming Soon",style: getRegularTextStyle(color: gray),))
-                      else
-                        Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child:Row(
-                            children: [
-                              Expanded(
-                                child: Text("₹$totalItemPrice",
-                                    style: getRegularTextStyle(fontSize: 16)),
-                              ),
-                              const Gap(8),
-                              if(cartItemIndex != null)
-                                Container(
-                                  height: 34,
-                                  padding: EdgeInsets.symmetric(horizontal: 4),
-                                  decoration:getCommonCardWithoutShadow(bgSmoke,borderRadius: 50)
-                                  ,child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: (){
-                                        setState(() {
-                                          if (listCart[cartItemIndex].quantity > 1) {
-                                            listCart[cartItemIndex].quantity--;
-                                          onClickMinusButton[productId] = true;
-                                          onClickPlusButton[productId] = false;
-                                          } else {
-                                            listCart.removeAt(cartItemIndex);
-                                            onClickPlusButton[productId] = false;
-                                            onClickMinusButton[productId] = false;
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        height : 28,
-                                        width: 28,
-                                        decoration: getCommonCard(shape: BoxShape.circle,bgColor: isOnClickMinusButton ? black : white),
-                                        child: Center(child: Text("−",style: getRegularTextStyle(fontSize: 18,color:isOnClickMinusButton  ? white : black),)),
-                                      ),
-                                    ),
-                                    const Gap(12),
-                                    Text(listCart[cartItemIndex].quantity.toString(),style: getRegularTextStyle(fontSize: 14,color: black),),
-                                    const Gap(12),
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: (){
-                                        setState(() {
-                                            listCart[cartItemIndex].quantity++;
-                                            onClickMinusButton[productId] = false;
-                                            onClickPlusButton[productId] = true;
-                                          });
-                                      },child: Container(
-                                      height : 28,
-                                      width: 28,
-                                      decoration: getCommonCard(shape: BoxShape.circle,bgColor: isOnClickPlusButton ? black : white),
-                                      child: Center(child: Text("+",style: getRegularTextStyle(fontSize: 18,color: isOnClickPlusButton  ? white : black),)),
-                                    ),
-                                    ),
-                                  ],
-                                ),
-                               )
-                              else
-                                SizedBox(
-                                  height: 34,
-                                  width: 70,
-                                  child: getCommonButton("ADD", false, () async {
-                                      setState(() {
-                                      listCart.add(CartItemModel(id: productId, product: productsItem, quantity: 1, preference:selectedPref , addOn: selectedVariationName, price: totalItemPrice, multipleAddonName: selectedMultipleAddOns[productId] ?? []));
-
-                                      onClickPlusButton[productId] = false;
-                                      onClickMinusButton[productId] = false;
-
-                                      if(productsItem.multipleAddons?.isNotEmpty ?? false){
-                                         selectedMultipleAddOns.remove(productId);
-                                          totalItemPrice = productsItem.price ?? 0;
+                  if(productsItem.price == "" || productsItem.price == null)
+                    Container(margin: EdgeInsets.only(top: 8,bottom: 8),child: Text("Coming Soon",style: getRegularTextStyle(color: gray),))
+                  else
+                    Container(
+                      margin: EdgeInsets.only(top: 8),
+                      child:Row(
+                        children: [
+                          Expanded(
+                            child: Text("₹$selectedPrice",
+                                style: getRegularTextStyle(fontSize: 16)),
+                          ),
+                          const Gap(8),
+                          if(cartItemIndex != null)
+                            Container(
+                              height: 34,
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              decoration:getCommonCardWithoutShadow(bgSmoke,borderRadius: 50)
+                              ,child: Row(
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: (){
+                                    setState(() {
+                                      if (listCart[cartItemIndex].quantity > 1) {
+                                        listCart[cartItemIndex].quantity--;
+                                      // onClickMinusButton[productId] = true;
+                                      // onClickPlusButton[productId] = false;
+                                      } else {
+                                        listCart.removeAt(cartItemIndex);
+                                        // onClickPlusButton[productId] = false;
+                                        // onClickMinusButton[productId] = false;
                                       }
                                     });
-                                  }),
+                                  },
+                                  child: Container(
+                                    height : 28,
+                                    width: 28,
+                                    decoration: getCommonCard(shape: BoxShape.circle,bgColor: white),
+                                    child: Center(child: Text("−",style: getRegularTextStyle(fontSize: 18,color: black),)),
+                                  ),
                                 ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+                                const Gap(12),
+                                Text(listCart[cartItemIndex].quantity.toString(),style: getRegularTextStyle(fontSize: 14,color: black),),
+                                const Gap(12),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: (){
+                                    setState(() {
+                                        listCart[cartItemIndex].quantity++;
+                                      });
+                                  },child: Container(
+                                  height : 28,
+                                  width: 28,
+                                  decoration: getCommonCard(shape: BoxShape.circle,bgColor: white),
+                                  child: Center(child: Text("+",style: getRegularTextStyle(fontSize: 18,color: black),)),
+                                ),
+                                ),
+                              ],
+                            ),
+                           )
+                          else
+                            SizedBox(
+                              height: 34,
+                              width: 70,
+                              child: getCommonButton("ADD", false, () async {
+                                  setState(() {
+                                  listCart.add(CartItemModel(id: productId, product: productsItem, quantity: 1, preference:selectedPref , addOn: selectedVariationName, price: selectedPrice, multipleAddonName: selectedMultipleAddOns[productId] ?? []));
+
+                                  if(productsItem.multipleAddons?.isNotEmpty ?? false){
+                                     selectedMultipleAddOns.remove(productId);
+                                      mapPrice[productId] = productsItem.price ?? 0;
+                                  }
+                                });
+                              }),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
               );
             }
         ),
@@ -1248,8 +1229,8 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
     return message;
   }
 
-  num getAmountTotal(){
-    return listCart.fold(0, (sum, item) => sum + item.price);
+  num getAmountTotal() {
+    return listCart.fold(0, (sum, item) => sum + (item.price * item.quantity));
   }
 
   int getTotalQty() {
