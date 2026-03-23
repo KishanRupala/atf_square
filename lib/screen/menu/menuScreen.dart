@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -44,7 +45,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   Map<int, GlobalKey> allDayMenuCategoryKeys = {};
   Map<String,String> selectedVariation = {};
   Map<String,String> selectedPreference = {};
-  Map<String, List<String>> selectedMultipleAddOns = {};
+  Map<String, Set<String>> selectedMultipleAddOns = {};
   Map<String, num> mapPrice = {};
   // Map<String, bool> onClickPlusButton = {};
   // Map<String, bool> onClickMinusButton = {};
@@ -556,12 +557,12 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
              // bool isOnClickPlusButton = onClickPlusButton[productId] ?? false;
                     num selectedPrice = mapPrice[productId] ?? productsItem.price ?? 0;
 
-              final String addonsSelectedMultipleAddOnsString = selectedMultipleAddOns[productId]?.join(", ") ?? "";
+                    final selectedSet = selectedMultipleAddOns[productId] ?? {};
 
               String selectedVariationName = selectedVariation[productId] ?? "Regular";
               String selectedPref = selectedPreference[productId] ?? "Regular";
 
-              int? cartItemIndex = getCartItemIndex(productsItem.productId ?? "", selectedPref, selectedVariationName, addonsSelectedMultipleAddOnsString);
+              int? cartItemIndex = getCartItemIndex(productsItem.productId ?? "", selectedPref, selectedVariationName, selectedSet);
 
               return  Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,17 +650,14 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                              ...List.generate(productsItem.multipleAddons?.length ?? 0,(index) {
                                    final multiple = productsItem.multipleAddons![index];
                                    final multiAddonName = multiple.multipleAddonName ?? "";
-                                   final isSelected =
-                                    selectedMultipleAddOns[productId]?.contains(multiAddonName) ?? false;
 
+                                   final isSelected = selectedSet.contains(multiAddonName);
                                   return GestureDetector(
                                     behavior: HitTestBehavior.opaque,
                                     onTap: () {
 
                                     itemSetState(() {
-                                        if (!selectedMultipleAddOns.containsKey(productId)) {
-                                          selectedMultipleAddOns[productId] = [];
-                                        }
+                                      selectedMultipleAddOns.putIfAbsent(productId, () => <String>{});
 
                                         if (selectedMultipleAddOns[productId]!.contains(multiAddonName)) {
                                           selectedMultipleAddOns[productId]!.remove(multiAddonName);
@@ -950,7 +948,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                               width: 70,
                               child: getCommonButton("ADD", false, () async {
                                   setState(() {
-                                  listCart.add(CartItemModel(id: productId, product: productsItem, quantity: 1, preference:selectedPref , addOn: selectedVariationName, price: selectedPrice, multipleAddonName: selectedMultipleAddOns[productId] ?? []));
+                                  listCart.add(CartItemModel(id: productId, product: productsItem, quantity: 1, preference:selectedPref , addOn: selectedVariationName, price: selectedPrice, multipleAddonName: selectedMultipleAddOns[productId]?.toList() ?? []));
 
                                   if(productsItem.multipleAddons?.isNotEmpty ?? false){
                                      selectedMultipleAddOns.remove(productId);
@@ -1019,7 +1017,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                           shrinkWrap: true,
                           itemCount: listCart.length,
                           physics: BouncingScrollPhysics(),
-                          padding: const EdgeInsets.all(0),
+                          padding: const EdgeInsets.only(bottom: 20),
                           itemBuilder: (context, index) {
                             final item = listCart[index];
                             return DashedBorderBox(
@@ -1056,7 +1054,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                           },
                         ),
                       ),
-                      const Gap(24),
+                      const Gap(4),
                       DashedBorderBox(
                         showTop: true,
                         child: Row(
@@ -1238,18 +1236,22 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   }
 
   int? getCartItemIndex(
-      String id,
+      String productId,
       String pref,
       String variation,
-      String addons,
+      Set<String> selectedSet,
       ) {
-    int index = listCart.indexWhere((item) =>
-    item.product.productId.toString() == id &&
-        item.preference == pref &&
-        item.addOn == variation &&
-        item.multipleAddonName.join(", ") == addons);
+    for (int i = 0; i < listCart.length; i++) {
+      final item = listCart[i];
 
-    return index == -1 ? null : index;
+      if (item.id == productId &&
+          item.preference == pref &&
+          item.addOn == variation &&
+          setEquals(item.multipleAddonName.toSet(), selectedSet)) {
+        return i;
+      }
+    }
+    return null;
   }
 
   _fetchMenuData() async {
