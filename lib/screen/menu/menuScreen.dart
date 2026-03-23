@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:atf_square/model/menu/PlaceOrderResponseModel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
 
   TextEditingController numberController = TextEditingController();
   TextEditingController noteController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
 
   final ScrollController _scrollController = ScrollController();
 
@@ -169,8 +171,8 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           floatingActionButton: Visibility(
-              visible : !showMenu && _isLoading == false && isOnline == true,
-              child: _buildMenuCartFAB(showMenuList: false)
+            visible : !showMenu && _isLoading == false && isOnline == true,
+            child: _buildMenuCartFAB(showMenuList: false)
           ),
         ),
         if(showMenu)
@@ -199,101 +201,101 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   }
 
   Widget _buildMenuCartFAB({required bool showMenuList,}) {
-          bool isCartVisible = getTotalQty() > 0;
+    bool isCartVisible = getTotalQty() > 0;
     return Padding(
       padding: const EdgeInsets.only(right: 12.0,bottom: 24),
       child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
 
-                if (showMenuList)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: _animatedMenu(context),
-                  ),
-                AnimatedPadding(
-                  duration: const Duration(milliseconds: 300),
-                  padding: EdgeInsets.only(bottom: isCartVisible ? 12 : 6),
-                  child: SizedBox(
-                    height: 60,
-                    width: 60,
-                    child: FloatingActionButton(
-                      heroTag: "menuButton",
-                      backgroundColor: Colors.black,
+          if (showMenuList)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: _animatedMenu(context),
+            ),
+          AnimatedPadding(
+            duration: const Duration(milliseconds: 300),
+            padding: EdgeInsets.only(bottom: isCartVisible ? 12 : 6),
+            child: SizedBox(
+              height: 60,
+              width: 60,
+              child: FloatingActionButton(
+                heroTag: "menuButton",
+                backgroundColor: Colors.black,
 
-                      onPressed: () async {
-                        if (_controller.isCompleted) {
-                          await _controller.reverse(); // CLOSE
-                          setState(() => showMenu = false);
-                        } else {
-                          setState(() => showMenu = true);
-                          _controller.forward(); // OPEN
-                        }
-                      },
+                onPressed: () async {
+                  if (_controller.isCompleted) {
+                    await _controller.reverse(); // CLOSE
+                    setState(() => showMenu = false);
+                  } else {
+                    setState(() => showMenu = true);
+                    _controller.forward(); // OPEN
+                  }
+                },
 
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          showMenu
-                              ? Image.asset(
-                            "assets/images/ic_close.png",
-                            height: 16,
-                            width: 14,
-                            color: white,
-                          )
-                              : Image.asset(
-                            "assets/images/ic_menu.png",
-                            height: 16,
-                            width: 16,
-                          ),
-                          const Gap(4),
-                          Text(
-                            "Menu",
-                            style: TextStyle(
-                              fontSize: 12,
-                              letterSpacing: 0,
-                              color: white,
-                            ),
-                          ),
-                        ],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    showMenu
+                        ? Image.asset(
+                      "assets/images/ic_close.png",
+                      height: 16,
+                      width: 14,
+                      color: white,
+                    )
+                        : Image.asset(
+                      "assets/images/ic_menu.png",
+                      height: 16,
+                      width: 16,
+                    ),
+                    const Gap(4),
+                    Text(
+                      "Menu",
+                      style: TextStyle(
+                        fontSize: 12,
+                        letterSpacing: 0,
+                        color: white,
                       ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          /// CART BUTTON
+          if (isCartVisible)
+            Container(
+              margin: const EdgeInsets.only(top: 8,),
+              width: 96,
+              height: 52,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF231F1F), Color(0xFF111111)],
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: FloatingActionButton(
+                heroTag: "cartScreen",
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                onPressed: openCartDialog,
+                child: Text(
+                  "Cart (${getTotalQty()})",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: white,
+                    letterSpacing: 0,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-
-                /// CART BUTTON
-                if (isCartVisible)
-                  Container(
-                    margin: const EdgeInsets.only(top: 8,),
-                    width: 96,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF231F1F), Color(0xFF111111)],
-                      ),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: FloatingActionButton(
-                      heroTag: "cartScreen",
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      onPressed: openCartDialog,
-                      child: Text(
-                        "Cart (${getTotalQty()})",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: white,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+              ),
             ),
+        ],
+      ),
     );
-     }
+  }
 
   Widget _animatedMenu(BuildContext context) {
     final mediaQuerySize =    MediaQuery.of(context).size;
@@ -354,18 +356,18 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
        shrinkWrap: true,
        padding: EdgeInsets.only(left: 8),
        itemBuilder: (context, index) {
-         final listItem = list[index];
+       final listItem = list[index];
        return GestureDetector(
          behavior: HitTestBehavior.opaque,
          onTap: ()=>onTab(index),
          child: Container(
            padding: EdgeInsets.only(bottom: 10),
            child: Row(
-               children: [
-                 Expanded(child: Text(listItem.categoryName ?? "-",style: getRegularTextStyle(color: gray,fontSize: 16),)),
-                 Text('${listItem.products?.length ?? 0}',style: getRegularTextStyle(color: gray,fontSize: 16),),
-               ],
-             ),
+             children: [
+               Expanded(child: Text(listItem.categoryName ?? "-",style: getRegularTextStyle(color: gray,fontSize: 16),)),
+               Text('${listItem.products?.length ?? 0}',style: getRegularTextStyle(color: gray,fontSize: 16),),
+             ],
+           ),
          ),
        );
      },);
@@ -388,7 +390,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
       decoration: getCommonCard(bgColor: bgDarkWhite),
       child: Column(
         children: [
-
           GestureDetector(
             onTap: onTap,
             child: AnimatedContainer(
@@ -419,10 +420,12 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                       left: 24,
                       right: 24,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(title,
-                              style: getBoldTextStyle(fontSize: 24, color: white)),
+                          Expanded(
+                            child: Text(title,
+                                style: getBoldTextStyle(fontSize: 24, color: white)),
+                          ),
                           Visibility(
                             visible: !isExpanded,
                             child: Text("+",
@@ -460,48 +463,51 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                   child: Column(
                     children: [
                       GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => onChildTap(index),
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 600),
-                            height: 108,
-                            child: ClipRRect(
-                              borderRadius: !isChildExpanded ? BorderRadiusGeometry.circular(kCardCornerRadius) : BorderRadius.only(topLeft: Radius.circular(kCardCornerRadius),topRight: Radius.circular(kCardCornerRadius)),
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: CachedNetworkImage(
-                                      imageUrl: "${item.categoryImage ?? ""}&h=500&zc=2",
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          Image.asset("assets/images/placeholder_banner_img.png", fit: BoxFit.cover),
-                                      errorWidget: (context, url, error) {
-                                        return Image.asset(
-                                          "assets/images/placeholder_banner_img.png",
-                                          fit: BoxFit.cover,
-                                        );
-                                      },
-                                    )
-                                  ),
-                                  Positioned(
-                                    bottom: 20,
-                                    left: 24,
-                                    right: 24,
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => onChildTap(index),
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 600),
+                          height: 108,
+                          child: ClipRRect(
+                            borderRadius: !isChildExpanded ? BorderRadiusGeometry.circular(kCardCornerRadius) : BorderRadius.only(topLeft: Radius.circular(kCardCornerRadius),topRight: Radius.circular(kCardCornerRadius)),
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: CachedNetworkImage(
+                                    imageUrl: "${item.categoryImage ?? ""}&h=500&zc=2",
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Image.asset("assets/images/placeholder_banner_img.png", fit: BoxFit.cover),
+                                    errorWidget: (context, url, error) {
+                                      return Image.asset(
+                                        "assets/images/placeholder_banner_img.png",
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                ),
+                                Positioned(
+                                  bottom: 20,
+                                  left: 24,
+                                  right: 24,
+                                  child: SizedBox(
+                                    height: 34,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Expanded(child: Text(item.categoryName ?? "-",style: getBoldTextStyle(fontSize: 24,color: white),)),
                                         Visibility(
-                                            visible: !isChildExpanded,
-                                            child: Text("+",style: getRegularTextStyle(fontSize: 36,color: white)))
+                                          visible: !isChildExpanded,
+                                          child: Text("+",style: getRegularTextStyle(fontSize: 30,color: white)))
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
+                      ),
 
                       /// GRID
 
@@ -527,11 +533,8 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                                 ],
                               ),
                             );
-
-
-              },
-            ),
-
+                          },
+                        ),
                     ],
                   ),
                 );
@@ -546,18 +549,18 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   Widget _commonMenuBannerItemWidget(Products productsItem,int index) {
 
     final String productId = productsItem.productId.toString();
-              // num totalItemPrice = productsItem.price ?? 0;
+
     return Container(
         margin: EdgeInsets.only(left: 8,right: 8,bottom: 8,top: 8),
         child: StatefulBuilder(
             builder: (BuildContext context,
                 StateSetter itemSetState) {
-             //
              // bool isOnClickMinusButton = onClickMinusButton[productId] ?? false;
              // bool isOnClickPlusButton = onClickPlusButton[productId] ?? false;
-                    num selectedPrice = mapPrice[productId] ?? productsItem.price ?? 0;
 
-                    final selectedSet = selectedMultipleAddOns[productId] ?? {};
+              num selectedPrice = mapPrice[productId] ?? productsItem.price ?? 0;
+
+              final selectedSet = selectedMultipleAddOns[productId] ?? {};
 
               String selectedVariationName = selectedVariation[productId] ?? "Regular";
               String selectedPref = selectedPreference[productId] ?? "Regular";
@@ -599,33 +602,33 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                         ),
                       ),
                       Visibility(
-                          visible: productsItem.swaminarayanAvailable == 1,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 8),
-                            child: Image.asset(
-                              "assets/images/ic_swami_narayan.png",
-                              height: 20,
-                            ),
-                          )
+                        visible: productsItem.swaminarayanAvailable == 1,
+                        child: Container(
+                          margin: EdgeInsets.only(left: 8),
+                          child: Image.asset(
+                            "assets/images/ic_swami_narayan.png",
+                            height: 20,
+                          ),
+                        )
                       ),
                       Visibility(
-                          visible: productsItem.jainAvailable == 1,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 8),
-                            child: Image.asset(
-                                "assets/images/ic_jain.png",
-                              height: 20,
-                            ),
-                          ) ),
+                       visible: productsItem.jainAvailable == 1,
+                       child: Container(
+                         margin: EdgeInsets.only(left: 8),
+                         child: Image.asset(
+                             "assets/images/ic_jain.png",
+                           height: 20,
+                         ),
+                       ) ),
                       Visibility(
-                          visible: productsItem.preOrder == 1,
-                          child: Container(
-                            margin: EdgeInsets.only(left: 8),
-                            child: Image.asset(
-                                "assets/images/pre_order_img.png",
-                              height: 14,
-                            ),
-                          )
+                        visible: productsItem.preOrder == 1,
+                        child: Container(
+                          margin: EdgeInsets.only(left: 8),
+                          child: Image.asset(
+                              "assets/images/pre_order_img.png",
+                            height: 14,
+                          ),
+                        )
                       )
                     ],
                   ),
@@ -648,67 +651,63 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                             Text("Extras:",style: getRegularTextStyle(color: Color(0xff8c8686),fontSize: 12)),
                             const Gap(8),
                              ...List.generate(productsItem.multipleAddons?.length ?? 0,(index) {
-                                   final multiple = productsItem.multipleAddons![index];
-                                   final multiAddonName = multiple.multipleAddonName ?? "";
-
-                                   final isSelected = selectedSet.contains(multiAddonName);
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () {
-
-                                    itemSetState(() {
-                                      selectedMultipleAddOns.putIfAbsent(productId, () => <String>{});
-
-                                        if (selectedMultipleAddOns[productId]!.contains(multiAddonName)) {
-                                          selectedMultipleAddOns[productId]!.remove(multiAddonName);
-                                          mapPrice[productId] = selectedPrice - ( multiple.multipleAddonPrice ?? 0);
-                                        } else {
-                                          selectedMultipleAddOns[productId]!.add(multiAddonName);
-                                          mapPrice[productId] =selectedPrice + (multiple.multipleAddonPrice ?? 0);
-                                        }
-                                        print("selectedMultipleAddOns  $selectedMultipleAddOns");
-                                      });
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Image.asset(
-                                            isSelected
-                                                ? "assets/images/ic_selected_checkbox.png"
-                                                : "assets/images/ic_checkbox.png",
-                                            color:isSelected ? brandColor : gray,
-                                            height: 16,
-                                            width: 16,
-                                          ),
-                                          const Gap(8),
-                                          Expanded(
-                                            child: RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text: "${multiple.multipleAddonName ?? ""} ",
-                                                    style: getRegularTextStyle(
-                                                      fontSize: 12,
-                                                      color: isSelected ? black : darkGray,
-                                                    ),
-                                                  ),
-                                                  TextSpan(
-                                                    text: "+ ₹${multiple.multipleAddonPrice ?? 0}",
-                                                    style: getRegularTextStyle(
-                                                      fontSize: 12,
-                                                      color:darkGray,
-                                                    )
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
+                                  final multiple = productsItem.multipleAddons![index];
+                                  final multiAddonName = multiple.multipleAddonName ?? "";
+                                  final isSelected = selectedSet.contains(multiAddonName);
+                                 return GestureDetector(
+                                   behavior: HitTestBehavior.opaque,
+                                   onTap: () {
+                                   itemSetState(() {
+                                     selectedMultipleAddOns.putIfAbsent(productId, () => <String>{});
+                                       if (selectedMultipleAddOns[productId]!.contains(multiAddonName)) {
+                                         selectedMultipleAddOns[productId]!.remove(multiAddonName);
+                                         mapPrice[productId] = selectedPrice - ( multiple.multipleAddonPrice ?? 0);
+                                       } else {
+                                         selectedMultipleAddOns[productId]!.add(multiAddonName);
+                                         mapPrice[productId] =selectedPrice + (multiple.multipleAddonPrice ?? 0);
+                                       }
+                                     });
+                                   },
+                                   child: Container(
+                                     margin: const EdgeInsets.only(bottom: 8),
+                                     child: Row(
+                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                       children: [
+                                         Image.asset(
+                                           isSelected
+                                               ? "assets/images/ic_selected_checkbox.png"
+                                               : "assets/images/ic_checkbox.png",
+                                           color:isSelected ? brandColor : gray,
+                                           height: 16,
+                                           width: 16,
+                                         ),
+                                         const Gap(8),
+                                         Expanded(
+                                           child: RichText(
+                                             text: TextSpan(
+                                               children: [
+                                                 TextSpan(
+                                                   text: "${multiple.multipleAddonName ?? ""} ",
+                                                   style: getRegularTextStyle(
+                                                     fontSize: 12,
+                                                     color: isSelected ? black : darkGray,
+                                                   ),
+                                                 ),
+                                                 TextSpan(
+                                                   text: "+ ₹${multiple.multipleAddonPrice ?? 0}",
+                                                   style: getRegularTextStyle(
+                                                     fontSize: 12,
+                                                     color:darkGray,
+                                                   )
+                                                 ),
+                                               ],
+                                             ),
+                                           ),
+                                         )
+                                       ],
+                                     ),
+                                   ),
+                                 );
                                 },
                               )
                           ],
@@ -977,117 +976,117 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
       ),
       builder: (context) {
         return StatefulBuilder(
-            builder: (BuildContext context, StateSetter sheetSetState) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.85,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: listCart.isEmpty ?
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      getBottomSheetHeaderWithButton(context, "Your Cart"),
-                      const Gap(32),
-                       Image.asset("assets/images/ic_empty_cart.png",height: 32,width: 32,),
-                      const Gap(16),
-                      Text("Your cart is empty",style: getRegularTextStyle(fontSize: 18,),),
-                      const Gap(4),
-                      Text("Add items to start ordering 🍽️",style: getRegularTextStyle(fontSize: 16,),),
-                      const Gap(42),
-                      Row(
-                        children: [
-                          Expanded(child: getCommonButton("Clear Cart", false, (){},bgColor: clearCartBtnBgColor,textColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
-                          const Gap(12),
-                          Expanded(child: getCommonButton("Place Order", false, (){},bgColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
-                        ],
-                      )
-                    ],
-                  )
-                  : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      getBottomSheetHeaderWithButton(context, "Your Cart"),
-                      const Gap(16),
-                      Flexible(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: listCart.length,
-                          physics: BouncingScrollPhysics(),
-                          padding: const EdgeInsets.only(bottom: 20),
-                          itemBuilder: (context, index) {
-                            final item = listCart[index];
-                            return DashedBorderBox(
-                              showTop: index == 0 ? false : true,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                            Text("${item.product.productName ?? "-"} "
-                                                "${item.multipleAddonName.isNotEmpty ?"- ${item.multipleAddonName.join(", ")}" : "" }"
-                                                "${item.addOn == "Regular" ? "" : "- ${item.addOn}"} "
-                                                "${item.preference == "Regular" ? "" :"(${item.preference})"} ",style: getRegularTextStyle(fontSize: 16),),
-                                        const Gap(4),
-                                        Text("Qty: ${item.quantity}",style: getRegularTextStyle(fontSize: 14,color: gray),),
-                                      ],
-                                    ),
+          builder: (BuildContext context, StateSetter sheetSetState) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: listCart.isEmpty ?
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    getBottomSheetHeaderWithButton(context, "Your Cart"),
+                    const Gap(32),
+                     Image.asset("assets/images/ic_empty_cart.png",height: 32,width: 32,),
+                    const Gap(16),
+                    Text("Your cart is empty",style: getRegularTextStyle(fontSize: 18,),),
+                    const Gap(4),
+                    Text("Add items to start ordering 🍽️",style: getRegularTextStyle(fontSize: 16,),),
+                    const Gap(42),
+                    Row(
+                      children: [
+                        Expanded(child: getCommonButton("Clear Cart", false, (){},bgColor: clearCartBtnBgColor,textColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
+                        const Gap(12),
+                        Expanded(child: getCommonButton("Place Order", false, (){},bgColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
+                      ],
+                    )
+                  ],
+                )
+                : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    getBottomSheetHeaderWithButton(context, "Your Cart"),
+                    const Gap(16),
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: listCart.length,
+                        physics: BouncingScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemBuilder: (context, index) {
+                          final item = listCart[index];
+                          return DashedBorderBox(
+                            showTop: index == 0 ? false : true,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                          Text("${item.product.productName ?? "-"} "
+                                              "${item.multipleAddonName.isNotEmpty ?"- ${item.multipleAddonName.join(", ")}" : "" }"
+                                              "${item.addOn == "Regular" ? "" : "- ${item.addOn}"} "
+                                              "${item.preference == "Regular" ? "" :"(${item.preference})"} ",style: getRegularTextStyle(fontSize: 16),),
+                                      const Gap(4),
+                                      Text("Qty: ${item.quantity}",style: getRegularTextStyle(fontSize: 14,color: gray),),
+                                    ],
                                   ),
-                                  const Gap(8),
-                                  GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () {
-                                      setState(() {
-                                       listCart.removeAt(index);
-                                      });
-                                      sheetSetState((){});
-                                    },
-                                      child: Image.asset("assets/images/ic_delete.png",height: 22,width: 22,))
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                ),
+                                const Gap(8),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    setState(() {
+                                     listCart.removeAt(index);
+                                    });
+                                    sheetSetState((){});
+                                  },
+                                    child: Image.asset("assets/images/ic_delete.png",height: 22,width: 22,))
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                      const Gap(4),
-                      DashedBorderBox(
-                        showTop: true,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                              Text("Total",style: getSemiBoldTextStyle(fontSize: 18),),
-                            const Gap(8),
-                            Text("₹${getAmountTotal()}",style: getSemiBoldTextStyle(fontSize: 18),)
-                          ],
-                        ),
-                      ),
-                      const Gap(14),
-                      Row(
+                    ),
+                    const Gap(4),
+                    DashedBorderBox(
+                      showTop: true,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(child: getCommonButton("Clear Cart", false, (){
-                            setState(() {
-                            listCart.clear();
-                            Navigator.pop(context);
-                            });
-                            sheetSetState((){});
-                          },bgColor: clearCartBtnBgColor,textColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
-                          const Gap(12),
-                          Expanded(child: getCommonButton("Place Order", false, (){
-                            Navigator.pop(context);
-                            openOrderDialog();
-                          },bgColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
+                            Text("Total",style: getSemiBoldTextStyle(fontSize: 18),),
+                          const Gap(8),
+                          Text("₹${getAmountTotal()}",style: getSemiBoldTextStyle(fontSize: 18),)
                         ],
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                    const Gap(14),
+                    Row(
+                      children: [
+                        Expanded(child: getCommonButton("Clear Cart", false, (){
+                          setState(() {
+                          listCart.clear();
+                          Navigator.pop(context);
+                          });
+                          sheetSetState((){});
+                        },bgColor: clearCartBtnBgColor,textColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
+                        const Gap(12),
+                        Expanded(child: getCommonButton("Place Order", false, (){
+                          Navigator.pop(context);
+                          openOrderDialog();
+                        },bgColor: black,textPadding: EdgeInsets.only(left: 6,right: 6,top: 6,bottom: 6))),
+                      ],
+                    )
+                  ],
                 ),
-              );
-            }
+              ),
+            );
+          }
         );
       },
     );
@@ -1102,6 +1101,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
+        bool _placeOrderLoading = false;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter sheetSetState) {
             return Padding(
@@ -1121,6 +1121,17 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                       children: [
                         getBottomSheetHeaderWithButton(context, "Place Order"),
                         const Gap(6),
+                        TextFormField(
+                          keyboardType: TextInputType.name,
+                          controller: nameController,
+                          onTapOutside: (value) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          },
+                          decoration: const InputDecoration(
+                            hintText: "Enter Your Name",
+                          ),
+                        ),
+                        const Gap(16),
                         TextFormField(
                           keyboardType: TextInputType.phone,
                           controller: numberController,
@@ -1169,13 +1180,27 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                             Expanded(
                               child: getCommonButton(
                                 "Order on WhatsApp",
-                                false,
+                                _placeOrderLoading,
                                     () async {
+
+                                   if(nameController.text.isEmpty){
+                                     showToast("Name is required", context);
+                                   }else
                                    if(numberController.value.text.isEmpty){
                                      showToast("Mobile number is required", context);
                                    }else if(numberController.text.length != 10){
                                      showToast("Mobile number must be 10 digits", context);
                                    }else{
+                                     sheetSetState((){
+                                       _placeOrderLoading = true;
+                                     });
+                                      // final apiListItem = prepareCartItemsForApi();
+                                     bool result = await _callPaceOrderApi();
+                                     if(result){
+
+                                     sheetSetState((){
+                                       _placeOrderLoading = false;
+                                     });
                                      bool isLaunched = await openWhatsApp("917304730633",generateWhatsAppMessage());
                                      if (isLaunched) {
                                        Navigator.pop(context);
@@ -1184,6 +1209,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                                        });
                                      }else{
                                        showToast("Cannot open WhatsApp", context);
+                                     }
                                      }
                                    }
                                 },
@@ -1268,7 +1294,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
           "location_id": "3",
         };
 
-
         final response = await http.post(url,body: jsonBody,);
         final statusCode = response.statusCode;
         final body = response.body;
@@ -1302,6 +1327,49 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
       noInterNet(context);
     }
   }
+
+  Future<bool> _callPaceOrderApi() async {
+    if (isOnline) {
+      try {
+
+        HttpWithMiddleware http = logger();
+        final url = Uri.parse(apiPlaceOrder);
+
+        final  Map<String, String> jsonBody = {
+          "location_id": "3",
+          "customer_name": nameController.text,
+          "customer_contact_no":numberController.text,
+          "order_type":"DINE_IN",
+          "is_preorder":"0",
+          "items":jsonEncode(prepareCartItemsForApi()),
+        };
+print(jsonBody);
+        final response = await http.post(url,body: jsonBody,);
+        final statusCode = response.statusCode;
+        final body = response.body;
+        Map<String, dynamic> user = jsonDecode(body);
+        var dataResponse = PlaceOrderResponseModel.fromJson(user);
+
+        print("Display status code : $statusCode");
+
+        if (statusCode == 200 && dataResponse.success == 1) {
+
+          return true;
+        } else {
+          showToast(dataResponse.message, context);
+          return false;
+
+        }
+      } catch (error) {
+        print("Failed to placeOrder : $error");
+          return false;
+      }
+    } else {
+      noInterNet(context);
+      return false;
+    }
+  }
+
 
   List<List<Products>> getPairs(List<Products> list) {
     List<List<Products>> pairs = [];
@@ -1360,5 +1428,47 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
     }
   }
 
+
+  List<Map<String, dynamic>> prepareCartItemsForApi() {
+    return listCart.map((cartItem) {
+      String variationId = "";
+
+      if (cartItem.addOn != "Regular") {
+        final variation = cartItem.product.productVariations
+            ?.firstWhere(
+              (v) => v.variationName == cartItem.addOn,
+          orElse: () => ProductVariations(),
+        );
+
+        variationId = variation?.variationId?.toString() ?? "";
+      }
+
+      List<Map<String, dynamic>> addons = [];
+
+      for (var addonName in cartItem.multipleAddonName) {
+        final addon = cartItem.product.multipleAddons?.firstWhere(
+              (a) => a.multipleAddonName == addonName,
+          orElse: () => MultipleAddons(),
+        );
+
+        if (addon != null) {
+          addons.add({
+            "name": addon.multipleAddonName ?? "",
+            "price": addon.multipleAddonPrice?.toString() ?? "0",
+            "qty": "1",
+          });
+        }
+      }
+
+      return {
+        "item_id": cartItem.product.productId ?? "",
+        "variation_id": variationId,
+        "qty": cartItem.quantity.toString(),
+        "addons": addons,
+        "jain_available":cartItem.preference== "Jain" ?  1 : 0,
+        "swaminarayan_available":cartItem.preference== "Swaminarayan" ?  1 : 0,
+      };
+    }).toList();
+  }
 
 }

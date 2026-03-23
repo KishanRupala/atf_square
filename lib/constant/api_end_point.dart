@@ -11,6 +11,7 @@ logger() => HttpWithMiddleware.build(middlewares: [
 
 //auth
 String apiMenuItems = "${apiUrl}services/menu_items";
+String apiPlaceOrder = "${apiUrl}services/place_order";
 
 
 
