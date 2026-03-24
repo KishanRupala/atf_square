@@ -36,6 +36,8 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   List<CartItemModel> listCart = [];
 
   bool _isLoading = false;
+  bool showMenu = false;
+
 
   TextEditingController numberController = TextEditingController();
   TextEditingController noteController = TextEditingController();
@@ -52,7 +54,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   // Map<String, bool> onClickPlusButton = {};
   // Map<String, bool> onClickMinusButton = {};
 
-  bool showMenu = false;
   late AnimationController _controller;
 
   @override
@@ -185,7 +186,9 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
         if(showMenu)
           Scaffold(
             backgroundColor: Colors.transparent,
-            body: GestureDetector(behavior: HitTestBehavior.opaque,onTap: () async {
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
                  await _controller.reverse(); // CLOSE
                  setState(() => showMenu = false);
               },
@@ -349,7 +352,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
      );
        }
 
-  Widget _commonMenuList({required List<dynamic> list,required Function(int) onTab}) {
+    Widget _commonMenuList({required List<dynamic> list,required Function(int) onTab}) {
     return ListView.builder(
        itemCount: list.length,
        physics: const NeverScrollableScrollPhysics(),
@@ -726,6 +729,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                     child: Wrap(
                       children: [
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             itemSetState(() {
                               selectedPreference[productId] = "Regular";
@@ -749,6 +753,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                         Visibility(
                           visible: productsItem.jainAvailable == 1,
                           child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
                               itemSetState(() {
                                 selectedPreference[productId] = "Jain";
@@ -772,8 +777,8 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                         Visibility(
                           visible: productsItem.swaminarayanAvailable == 1,
                           child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              print("cklick");
                               itemSetState(() {
                                 selectedPreference[productId] = "Swaminarayan";
                               });
@@ -808,6 +813,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             itemSetState(() {
                               selectedVariation[productId] = "Regular";
@@ -837,6 +843,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                         ),
                         for (var variation in productsItem.productVariations!)
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: () {
                               itemSetState(() {
                                 selectedVariation[productId] = variation.variationName!;
@@ -1101,14 +1108,13 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        bool _placeOrderLoading = false;
+        bool placeOrderLoading = false;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter sheetSetState) {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.85,
@@ -1180,36 +1186,32 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                             Expanded(
                               child: getCommonButton(
                                 "Order on WhatsApp",
-                                _placeOrderLoading,
+                                placeOrderLoading,
                                     () async {
-
                                    if(nameController.text.isEmpty){
                                      showToast("Name is required", context);
-                                   }else
-                                   if(numberController.value.text.isEmpty){
+                                   }else if(numberController.value.text.isEmpty){
                                      showToast("Mobile number is required", context);
                                    }else if(numberController.text.length != 10){
                                      showToast("Mobile number must be 10 digits", context);
                                    }else{
                                      sheetSetState((){
-                                       _placeOrderLoading = true;
+                                       placeOrderLoading = true;
                                      });
-                                      // final apiListItem = prepareCartItemsForApi();
                                      bool result = await _callPaceOrderApi();
                                      if(result){
-
-                                     sheetSetState((){
-                                       _placeOrderLoading = false;
-                                     });
-                                     bool isLaunched = await openWhatsApp("917304730633",generateWhatsAppMessage());
-                                     if (isLaunched) {
-                                       Navigator.pop(context);
-                                       setState(() {
-                                       listCart.clear();
+                                       sheetSetState((){
+                                         placeOrderLoading = false;
                                        });
-                                     }else{
-                                       showToast("Cannot open WhatsApp", context);
-                                     }
+                                       bool isLaunched = await openWhatsApp("917304730633",generateWhatsAppMessage());
+                                       if (isLaunched) {
+                                         Navigator.pop(context);
+                                         setState(() {
+                                         listCart.clear();
+                                         });
+                                       }else{
+                                         showToast("Cannot open WhatsApp", context);
+                                       }
                                      }
                                    }
                                 },
@@ -1331,7 +1333,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
   Future<bool> _callPaceOrderApi() async {
     if (isOnline) {
       try {
-
         HttpWithMiddleware http = logger();
         final url = Uri.parse(apiPlaceOrder);
 
@@ -1343,7 +1344,6 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
           "is_preorder":"0",
           "items":jsonEncode(prepareCartItemsForApi()),
         };
-print(jsonBody);
         final response = await http.post(url,body: jsonBody,);
         final statusCode = response.statusCode;
         final body = response.body;
@@ -1353,7 +1353,6 @@ print(jsonBody);
         print("Display status code : $statusCode");
 
         if (statusCode == 200 && dataResponse.success == 1) {
-
           return true;
         } else {
           showToast(dataResponse.message, context);
@@ -1361,7 +1360,7 @@ print(jsonBody);
 
         }
       } catch (error) {
-        print("Failed to placeOrder : $error");
+        print("Failed to place Order : $error");
           return false;
       }
     } else {
@@ -1385,13 +1384,6 @@ print(jsonBody);
     return pairs;
   }
 
-
-  @override
-  void castStatefulWidget() {
-    widget is MenuScreen;
-  }
-
-
   @override
   void dispose() {
     _controller.dispose();
@@ -1413,17 +1405,17 @@ print(jsonBody);
 
     if (state == AppLifecycleState.inactive) {
       sessionManager.setCartList(listCart);
-      print("All in active <><><> ${listCart}");
+      print("All in active <><><> $listCart");
     }
     if (state == AppLifecycleState.hidden) {
       sessionManager.setCartList(listCart);
-      print("App hidden che <><> ${listCart}");
+      print("App hidden  <><> $listCart");
     }
 
     if (state == AppLifecycleState.resumed) {
       setState(() {
       listCart = sessionManager.getCartList();
-        print("list cart from session resumed method${listCart}");
+        print("list cart from session resumed method $listCart");
       });
     }
   }
@@ -1469,6 +1461,11 @@ print(jsonBody);
         "swaminarayan_available":cartItem.preference== "Swaminarayan" ?  1 : 0,
       };
     }).toList();
+  }
+
+  @override
+  void castStatefulWidget() {
+    widget is MenuScreen;
   }
 
 }

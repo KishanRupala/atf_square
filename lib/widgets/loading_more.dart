@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../constant/colors.dart';
 
 class LoadingMoreWidget extends StatelessWidget {
-  const LoadingMoreWidget({Key? key}) : super(key: key);
+  const LoadingMoreWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
