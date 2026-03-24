@@ -83,12 +83,12 @@ class _MyHomePageState extends BaseState<MyHomePage> {
   @override
   Widget build(BuildContext context) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: white,
+      statusBarColor: bgColor,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.dark,
-      systemNavigationBarColor: white,
+      systemNavigationBarColor: bgColor,
       systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarDividerColor: white,
+      systemNavigationBarDividerColor: bgColor,
     ));
 
     return  Scaffold(
