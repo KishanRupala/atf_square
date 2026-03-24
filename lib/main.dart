@@ -11,6 +11,10 @@ import 'screen/menu/menuScreen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SessionManagerMethods.init();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp( const MyApp());
 }
 
@@ -70,8 +74,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends BaseState<MyHomePage> {
-
-
   @override
   void initState(){
     Timer(const Duration(milliseconds: 1400),(){
@@ -82,7 +84,7 @@ class _MyHomePageState extends BaseState<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: bgColor,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.dark,
@@ -103,5 +105,4 @@ class _MyHomePageState extends BaseState<MyHomePage> {
   void castStatefulWidget() {
     widget is MyHomePage;
   }
-
 }
