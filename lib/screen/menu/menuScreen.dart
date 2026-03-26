@@ -110,63 +110,61 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
     return Stack(
       children: [
         Scaffold(
-          body: !isOnline ? MyNoInternetWidget(() {}) : SafeArea(
-            child:_isLoading ? Center(child: CircularProgressIndicator(color: brandColor)) : SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12.0,right: 12,top: 96),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Center(child: Image.asset("assets/images/logo.png",width: 144,height: 165,)),
-                    const Gap(16),
-                    menuSectionWidget(
-                      keyMap: morningMenuCategoryKeys,
-                      categoryImg: "breakfast_menu.jpg",
-                      list: listMorningMenu,
-                      title: "Morning Menu",
-                      isExpanded: parentExpandedIndex == 0,
-                      onTap: () {
-                        setState(() {
-                          parentExpandedIndex =
-                          parentExpandedIndex == 0 ? null : 0;
-                          childExpandedIndex = null;
-                        });
-                      },
-                      childExpandedIndex: childExpandedIndex,
-                      onChildTap: (index) {
-                        setState(() {
-                          childExpandedIndex =
-                          childExpandedIndex == index ? null : index;
-                        });
-                      },
-                    ),
+          body: !isOnline ? MyNoInternetWidget(() {}) : _isLoading ? Center(child: CircularProgressIndicator(color: brandColor)) : SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12.0,right: 12,top: 96),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(child: Image.asset("assets/images/logo.png",width: 144,height: 165,)),
+                  const Gap(16),
+                  menuSectionWidget(
+                    keyMap: morningMenuCategoryKeys,
+                    categoryImg: "breakfast_menu.jpg",
+                    list: listMorningMenu,
+                    title: "Morning Menu",
+                    isExpanded: parentExpandedIndex == 0,
+                    onTap: () {
+                      setState(() {
+                        parentExpandedIndex =
+                        parentExpandedIndex == 0 ? null : 0;
+                        childExpandedIndex = null;
+                      });
+                    },
+                    childExpandedIndex: childExpandedIndex,
+                    onChildTap: (index) {
+                      setState(() {
+                        childExpandedIndex =
+                        childExpandedIndex == index ? null : index;
+                      });
+                    },
+                  ),
 
-                    /// SECOND
-                    menuSectionWidget(
-                      keyMap: allDayMenuCategoryKeys,
-                      categoryImg: "all_day_menu_image.jpg",
-                      list: listAllDayMenu,
-                      title: "All Day Menu",
-                      isExpanded: parentExpandedIndex == 1,
-                      onTap: () {
-                        setState(() {
-                          parentExpandedIndex =
-                          parentExpandedIndex == 1 ? null : 1;
-                          childExpandedIndex = null;
-                        });
-                      },
-                      childExpandedIndex: childExpandedIndex,
-                      onChildTap: (index) {
-                        setState(() {
-                          childExpandedIndex =
-                          childExpandedIndex == index ? null : index;
-                        });
-                      },
-                    ),
-                    const Gap(16)
-                  ],
-                ),
+                  /// SECOND
+                  menuSectionWidget(
+                    keyMap: allDayMenuCategoryKeys,
+                    categoryImg: "all_day_menu_image.jpg",
+                    list: listAllDayMenu,
+                    title: "All Day Menu",
+                    isExpanded: parentExpandedIndex == 1,
+                    onTap: () {
+                      setState(() {
+                        parentExpandedIndex =
+                        parentExpandedIndex == 1 ? null : 1;
+                        childExpandedIndex = null;
+                      });
+                    },
+                    childExpandedIndex: childExpandedIndex,
+                    onChildTap: (index) {
+                      setState(() {
+                        childExpandedIndex =
+                        childExpandedIndex == index ? null : index;
+                      });
+                    },
+                  ),
+                  const Gap(100)
+                ],
               ),
             ),
           ),
@@ -325,7 +323,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                children: [
                  const Gap(16),
                  Text("Morning Menu ",style: getRegularTextStyle(color: white,fontSize: 18),),
-                 const Gap(10),
+                 const Gap(16),
                  _commonMenuList(list: listMorningMenu, onTab: (index) async {
                      await _controller.reverse();
                      setState((){
@@ -333,9 +331,9 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
                      });
                      morningMenuScrollTo(index);
                  }),
-                 const Gap(8),
-                 Text("All Day Menu",style: getRegularTextStyle(color: white,fontSize: 18),),
                  const Gap(10),
+                 Text("All Day Menu",style: getRegularTextStyle(color: white,fontSize: 18),),
+                 const Gap(16),
                  _commonMenuList(list:listAllDayMenu, onTab: (index) async {
                    await _controller.reverse();
                    setState((){
@@ -357,14 +355,14 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
        itemCount: list.length,
        physics: const NeverScrollableScrollPhysics(),
        shrinkWrap: true,
-       padding: EdgeInsets.only(left: 8),
+       padding: EdgeInsets.only(left: 10),
        itemBuilder: (context, index) {
        final listItem = list[index];
        return GestureDetector(
          behavior: HitTestBehavior.opaque,
          onTap: ()=>onTab(index),
          child: Container(
-           padding: EdgeInsets.only(bottom: 10),
+           padding: EdgeInsets.only(bottom: 12),
            child: Row(
              children: [
                Expanded(child: Text(listItem.categoryName ?? "-",style: getRegularTextStyle(color: gray,fontSize: 16),)),
