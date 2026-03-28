@@ -15,8 +15,6 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
   runApp( const MyApp());
 }
 
@@ -88,11 +86,10 @@ class _MyHomePageState extends BaseState<MyHomePage> {
   Widget build(BuildContext context) {
      SystemChrome.setSystemUIOverlayStyle(
        const SystemUiOverlayStyle(
-         statusBarColor: Colors.transparent,
+         statusBarColor:bgColor,
          statusBarIconBrightness: Brightness.dark,
-         systemNavigationBarColor: Colors.transparent,
+         systemNavigationBarColor: bgColor,
          systemNavigationBarIconBrightness: Brightness.dark,
-         systemNavigationBarContrastEnforced: false,
        ),
      );
 

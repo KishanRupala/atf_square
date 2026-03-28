@@ -110,61 +110,63 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
     return Stack(
       children: [
         Scaffold(
-          body: !isOnline ? MyNoInternetWidget(() {}) : _isLoading ? Center(child: CircularProgressIndicator(color: brandColor)) : SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0,right: 12,top: 96),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Center(child: Image.asset("assets/images/logo.png",width: 144,height: 165,)),
-                  const Gap(16),
-                  menuSectionWidget(
-                    keyMap: morningMenuCategoryKeys,
-                    categoryImg: "breakfast_menu.jpg",
-                    list: listMorningMenu,
-                    title: "Morning Menu",
-                    isExpanded: parentExpandedIndex == 0,
-                    onTap: () {
-                      setState(() {
-                        parentExpandedIndex =
-                        parentExpandedIndex == 0 ? null : 0;
-                        childExpandedIndex = null;
-                      });
-                    },
-                    childExpandedIndex: childExpandedIndex,
-                    onChildTap: (index) {
-                      setState(() {
-                        childExpandedIndex =
-                        childExpandedIndex == index ? null : index;
-                      });
-                    },
-                  ),
-
-                  /// SECOND
-                  menuSectionWidget(
-                    keyMap: allDayMenuCategoryKeys,
-                    categoryImg: "all_day_menu_image.jpg",
-                    list: listAllDayMenu,
-                    title: "All Day Menu",
-                    isExpanded: parentExpandedIndex == 1,
-                    onTap: () {
-                      setState(() {
-                        parentExpandedIndex =
-                        parentExpandedIndex == 1 ? null : 1;
-                        childExpandedIndex = null;
-                      });
-                    },
-                    childExpandedIndex: childExpandedIndex,
-                    onChildTap: (index) {
-                      setState(() {
-                        childExpandedIndex =
-                        childExpandedIndex == index ? null : index;
-                      });
-                    },
-                  ),
-                  const Gap(100)
-                ],
+          body: !isOnline ? MyNoInternetWidget(() {}) : _isLoading ? Center(child: CircularProgressIndicator(color: brandColor)) : SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12.0,right: 12,top: 96),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(child: Image.asset("assets/images/logo.png",width: 144,height: 165,)),
+                    const Gap(16),
+                    menuSectionWidget(
+                      keyMap: morningMenuCategoryKeys,
+                      categoryImg: "breakfast_menu.jpg",
+                      list: listMorningMenu,
+                      title: "Morning Menu",
+                      isExpanded: parentExpandedIndex == 0,
+                      onTap: () {
+                        setState(() {
+                          parentExpandedIndex =
+                          parentExpandedIndex == 0 ? null : 0;
+                          childExpandedIndex = null;
+                        });
+                      },
+                      childExpandedIndex: childExpandedIndex,
+                      onChildTap: (index) {
+                        setState(() {
+                          childExpandedIndex =
+                          childExpandedIndex == index ? null : index;
+                        });
+                      },
+                    ),
+            
+                    /// SECOND
+                    menuSectionWidget(
+                      keyMap: allDayMenuCategoryKeys,
+                      categoryImg: "all_day_menu_image.jpg",
+                      list: listAllDayMenu,
+                      title: "All Day Menu",
+                      isExpanded: parentExpandedIndex == 1,
+                      onTap: () {
+                        setState(() {
+                          parentExpandedIndex =
+                          parentExpandedIndex == 1 ? null : 1;
+                          childExpandedIndex = null;
+                        });
+                      },
+                      childExpandedIndex: childExpandedIndex,
+                      onChildTap: (index) {
+                        setState(() {
+                          childExpandedIndex =
+                          childExpandedIndex == index ? null : index;
+                        });
+                      },
+                    ),
+                    const Gap(100)
+                  ],
+                ),
               ),
             ),
           ),
@@ -446,7 +448,7 @@ class _MenuScreenState extends BaseState<MenuScreen> with TickerProviderStateMix
             ListView.builder(
               itemCount: list.length,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.all(8),
               controller: _scrollController,
               itemBuilder: (context, index) {

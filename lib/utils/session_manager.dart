@@ -23,7 +23,7 @@ class SessionManager {
 
   List<CartItemModel> getCartList() {
     final jsonString = SessionManagerMethods.getString(cartKey);
-    if (jsonString != null)
+    if (jsonString != null && jsonString.isNotEmpty)
     {
       try
       {
